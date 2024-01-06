@@ -6,8 +6,8 @@
 # 编译
 直接下载到linux系统上用cmake编译
 工程目录下创建一个build
-mkdir build
-cmake ..
-make
-cd bin
-./server
+1、mkdir build
+2、cmake ..
+3、make
+4、cd bin
+5、./server
