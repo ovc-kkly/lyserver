@@ -3,3 +3,11 @@
 # 文件目录结构
 1.lib/aip是百度API的sdk
 2.include, src分别是头文件和源文件
+# 编译
+直接下载到linux系统上用cmake编译
+工程目录下创建一个build
+mkdir build
+cmake ..
+make
+cd bin
+./server
