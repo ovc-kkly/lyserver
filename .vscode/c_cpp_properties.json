@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/lyserver/include",
+                "${workspaceFolder}/lyserver/src",
+                "${workspaceFolder}/lyserver/test",
+                "${workspaceFolder}/lyserver/lib/aip",
+                "${workspaceFolder}/example",
+                "${workspaceFolder}/other/RF",
+                "${workspaceFolder}/other/Path_Planning",
+                "${workspaceFolder}/other/py",
+                "${workspaceFolder}/lyserver/streams"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

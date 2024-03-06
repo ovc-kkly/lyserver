@@ -1,0 +1,24 @@
+2024-02-17 17:04:37	11791	UNKNOW	0	[INFO]	[system]	lyserver/src/db/datahandle/base_db_handle.cpp:19	连接池的数量:0
+2024-02-17 17:04:39	11791	UNKNOW	0	[INFO]	[system]	lyserver/src/ThreadPool/ThreadPool.cpp:86	创建子线程,个数： 4
+2024-02-17 17:04:39	11791	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:80	 Server Running:port [8080] 
+2024-02-17 17:04:39	11791	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:135	FTP_Server Running:port [8999]
+2024-02-17 17:04:39	11791	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:164	FTP_Server data Running:port [8998]
+2024-02-17 17:04:39	11791	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:108	UDP_Server Running:port [8997]
+2024-02-18 15:09:27	4946	UNKNOW	0	[INFO]	[system]	lyserver/src/db/datahandle/base_db_handle.cpp:19	连接池的数量:0
+2024-02-18 15:09:28	4946	UNKNOW	0	[INFO]	[system]	lyserver/src/ThreadPool/ThreadPool.cpp:86	创建子线程,个数： 4
+2024-02-18 15:09:28	4946	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:80	 Server Running:port [8080] 
+2024-02-18 15:09:28	4946	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:135	FTP_Server Running:port [8999]
+2024-02-18 15:09:28	4946	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:164	FTP_Server data Running:port [8998]
+2024-02-18 15:09:28	4946	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:108	UDP_Server Running:port [8997]
+2024-02-18 15:31:41	9399	UNKNOW	0	[INFO]	[system]	lyserver/src/db/datahandle/base_db_handle.cpp:19	连接池的数量:0
+2024-02-18 15:31:41	9399	UNKNOW	0	[INFO]	[system]	lyserver/src/ThreadPool/ThreadPool.cpp:86	创建子线程,个数： 4
+2024-02-18 15:31:41	9399	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:80	 Server Running:port [8080] 
+2024-02-18 15:31:41	9399	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:135	FTP_Server Running:port [8999]
+2024-02-18 15:31:41	9399	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:164	FTP_Server data Running:port [8998]
+2024-02-18 15:31:41	9399	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:108	UDP_Server Running:port [8997]
+2024-02-20 00:39:37	14110	UNKNOW	0	[INFO]	[system]	lyserver/src/db/datahandle/base_db_handle.cpp:19	连接池的数量:0
+2024-02-20 00:39:39	14110	UNKNOW	0	[INFO]	[system]	lyserver/src/ThreadPool/ThreadPool.cpp:80	创建子线程,个数： 4
+2024-02-20 00:39:39	14110	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:80	 Server Running:port [8080] 
+2024-02-20 00:39:39	14110	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:135	FTP_Server Running:port [8999]
+2024-02-20 00:39:39	14110	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:164	FTP_Server data Running:port [8998]
+2024-02-20 00:39:39	14110	UNKNOW	0	[INFO]	[system]	lyserver/src/reactor/reactor.cpp:108	UDP_Server Running:port [8997]

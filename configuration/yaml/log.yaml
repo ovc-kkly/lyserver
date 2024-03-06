@@ -1,0 +1,20 @@
+logs:
+    - name: root
+      level: info
+      appenders:
+          - type: FileLogAppender
+            file: ./FileLogAppender/root.txt
+          - type: StdoutLogAppender
+    - name: system
+      level: info
+      appenders:
+          - type: FileLogAppender
+            file: /home/ly/lyserver_master/configuration/yaml/FileLogAppender/FileLogAppender/system.txt
+          - type: StdoutLogAppender
+    - name: root1
+      level: info
+      formatter: '%d%T%m%n'
+      appenders:
+          - type: FileLogAppender
+            file: ./FileLogAppender/root1.txt
+          - type: StdoutLogAppender

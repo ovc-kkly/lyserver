@@ -1,0 +1,6 @@
+listen:
+      - name : lyserver
+        addr : "0.0.0.0:8080"
+        Timer : 
+          - client : No
+          - server : Yes

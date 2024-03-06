@@ -1,0 +1,7 @@
+/home/ly/lyserver_master/build/CMakeFiles/edit_cache.dir
+/home/ly/lyserver_master/build/CMakeFiles/rebuild_cache.dir
+/home/ly/lyserver_master/build/lyserver/src/CMakeFiles/lyserver.dir
+/home/ly/lyserver_master/build/lyserver/src/CMakeFiles/ly_server.dir
+/home/ly/lyserver_master/build/lyserver/src/CMakeFiles/server.dir
+/home/ly/lyserver_master/build/lyserver/src/CMakeFiles/edit_cache.dir
+/home/ly/lyserver_master/build/lyserver/src/CMakeFiles/rebuild_cache.dir

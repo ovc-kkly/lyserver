@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/ly_server.dir/__/__/example/main.cpp.o -o ../../bin/ly_server   -L/usr/local/lib64  -L/usr/local/lib  -L/usr/lib64/mysql  -Wl,-rpath,/usr/local/lib64:/usr/local/lib:/usr/lib64/mysql:/home/ly/lyserver_master/build/lyserver/src liblyserver.so -ljsoncpp -lpthread -lmysqlclient -lcurl -lcrypto -lyaml-cpp -lpython3.10 

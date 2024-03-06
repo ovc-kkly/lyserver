@@ -1,0 +1,18 @@
+{
+    "REQUEST": "ID_REQUEST",
+    "ID": "写你的客户端英文名字"
+}
+
+{
+    "REQUEST": "DETETION",
+    "Parking_lot_ID": "", //停车场ID
+    "Ent_lon": "", //停车场入口经度
+    "Ent_lat": "", //停车场入口纬度
+    "Car_ID": "", //检测车辆车牌号
+    "h_distance": "", //检测车辆横向距离
+    "z_distance": "", //检测车辆纵向距离
+    "Car_lon": "", //车辆位置经度
+    "Car_lat": "", //车辆位置纬度
+    "Car_angle": "", //航向角
+    "In_identification_flag": "" //场内识别标志位
+}
