@@ -100,7 +100,7 @@ public:
     /**
      * @brief 获取发送超时时间(毫秒)
      */
-    // int64_t getSendTimeout();
+    int64_t getSendTimeout();
 
     /**
      * @brief 设置发送超时时间(毫秒)
@@ -110,7 +110,7 @@ public:
     /**
      * @brief 获取接受超时时间(毫秒)
      */
-    // int64_t getRecvTimeout();
+    int64_t getRecvTimeout();
 
     /**
      * @brief 设置接受超时时间(毫秒)
@@ -334,24 +334,24 @@ public:
 
     static int sockfcntl(int fd, int __cmd, ...);
     /**
-    //  * @brief 取消读
-    //  */
-    // bool cancelRead();
+     * @brief 取消读
+     */
+    bool cancelRead();
 
-    // /**
-    //  * @brief 取消写
-    //  */
-    // bool cancelWrite();
+    /**
+     * @brief 取消写
+     */
+    bool cancelWrite();
 
-    // /**
-    //  * @brief 取消accept
-    //  */
-    // bool cancelAccept();
+    /**
+     * @brief 取消accept
+     */
+    bool cancelAccept();
 
-    // /**
-    //  * @brief 取消所有事件
-    //  */
-    // bool cancelAll();
+    /**
+     * @brief 取消所有事件
+     */
+    bool cancelAll();
 protected:
     /**
      * @brief 初始化socket

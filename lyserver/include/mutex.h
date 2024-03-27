@@ -56,8 +56,7 @@ namespace lyserver
          * @brief 构造函数
          * @param[in] mutex Mutex
          */
-        ScopedLockImpl(T &mutex)
-            : m_mutex(mutex)
+        ScopedLockImpl(T &mutex): m_mutex(mutex)
         {
             m_mutex.lock();
             m_locked = true;
@@ -257,7 +256,7 @@ namespace lyserver
             pthread_mutex_unlock(&m_mutex);
         }
 
-        pthread_mutex_t& operator*()
+        pthread_mutex_t &operator*()
         {
             return this->m_mutex;
         }
@@ -464,8 +463,7 @@ namespace lyserver
          */
         void lock()
         {
-            while (std::atomic_flag_test_and_set_explicit(&m_mutex, std::memory_order_acquire))
-                ;
+            while (std::atomic_flag_test_and_set_explicit(&m_mutex, std::memory_order_acquire));
         }
 
         /**

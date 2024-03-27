@@ -11,7 +11,7 @@ namespace lyserver
         {
         }
 
-        HttpRequest::ptr HttpSession::recvRequest(int& ret)
+        HttpRequest::ptr HttpSession::recvRequest()
         {
             HttpRequestParser::ptr parser(new HttpRequestParser);
             uint64_t buff_size = HttpRequestParser::GetHttpRequestBufferSize();
@@ -25,26 +25,22 @@ namespace lyserver
             do
             {
                 int len = read(data + offset, buff_size - offset);
-                ret = len;
                 if (len <= 0)
                 {
-                    // close();
-                    
+                    close();
                     return nullptr;
                 }
                 len += offset;
                 size_t nparse = parser->execute(data, len);//解析请求行，请求头，剩余请求体
                 if (parser->hasError())
                 {
-                    // close();
-                    ret = -1;
+                    close();
                     return nullptr;
                 }
                 offset = len - nparse;
                 if (offset == (int)buff_size)
                 {
-                    // close();
-                    ret = -1;
+                    close();
                     return nullptr;
                 }
                 if (parser->isFinished())
@@ -73,11 +69,11 @@ namespace lyserver
                 length -= offset;
                 if (length > 0)
                 {
-                    ret = readFixSize(&body[len], length);
+                    int ret = readFixSize(&body[len], length);
                     if (ret <= 0)
                     {
-                        // close();
-                        ret = -1;
+                        close();
+                        // ret = -1;
                         return nullptr;
                     }
                 }

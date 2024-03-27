@@ -57,8 +57,8 @@ namespace lyserver
     }
     void daemon::init(const char *path, const char *name, const char *workdir)
     {
-        this->path = string(path);
-        this->name = string(name);
-        this->workdir = string(workdir);
+        this->path = std::string(path);
+        this->name = std::string(name);
+        this->workdir = std::string(workdir);
     }
 }

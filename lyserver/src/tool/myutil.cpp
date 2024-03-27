@@ -2,6 +2,8 @@
 #include <execinfo.h>
 #include "log.h" //与这个文件互相引用了
 #include <cxxabi.h>
+#include "fiber.h"
+// #include "ThreadPool.h"
 namespace lyserver
 {
     static lyserver::Logger::ptr g_logger = LY_LOG_NAME("system");
@@ -27,19 +29,15 @@ namespace lyserver
         gettimeofday(&tv, NULL);
         return tv.tv_sec * 1000 * 1000ul + tv.tv_usec;
     }
-    //     pid_t GetThreadId()
-    // {
-    //     return syscall(SYS_gettid);
-    // }
+    pid_t GetThreadId()
+    {
+        return syscall(SYS_gettid);
+    }
 
-    // uint32_t GetFiberId()
-    // {
-    //     return 0;
-    // }
-    // const std::string &GetName()
-    // {
-    //     return t_thread_name;
-    // }
+    uint32_t GetFiberId()
+    {
+        return lyserver::Fiber::GetFiberId();
+    }
     static std::string demangle(const char *str)
     {
         size_t size = 0;

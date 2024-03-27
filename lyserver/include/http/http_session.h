@@ -1,12 +1,3 @@
-/**
- * @file http_session.h
- * @brief HTTPSession封装
- * @author lyserver.yin
- * @email 564628276@qq.com
- * @date 2019-06-07
- * @copyright Copyright (c) 2019年 lyserver.yin All rights reserved (www.lyserver.top)
- */
-
 #ifndef HTTP_SESSION_H
 #define HTTP_SESSION_H
 
@@ -34,7 +25,7 @@ public:
     /**
      * @brief 接收HTTP请求
      */
-    HttpRequest::ptr recvRequest(int& ret);
+    HttpRequest::ptr recvRequest();
 
     /**
      * @brief 发送HTTP响应

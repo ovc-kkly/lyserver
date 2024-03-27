@@ -272,7 +272,7 @@ public:
                            , const std::string& body = "");
 
     /**
-     * @brief 发送HTTP请求
+     * @brief 发送HTTP请求，打包好HttpRequest的内容
      * @param[in] method 请求类型
      * @param[in] uri 请求的url
      * @param[in] timeout_ms 超时时间(毫秒)
@@ -287,7 +287,7 @@ public:
                             , const std::string& body = "");
 
     /**
-     * @brief 发送HTTP请求
+     * @brief 发送HTTP请求，打包好HttpRequest的内容
      * @param[in] method 请求类型
      * @param[in] uri URI结构体
      * @param[in] timeout_ms 超时时间(毫秒)

@@ -28,7 +28,7 @@ namespace Random_Forest
         Python::ptr pyobj;
         RF_base();
         virtual ~RF_base() {}
-        void import_module(const vector<std::string> &module_path);
+        void import_module(const std::vector<std::string> &module_path);
     };
 
     class RF : public RF_base
@@ -74,7 +74,7 @@ namespace Random_Forest
         Class::ptr pyClass;
         std::map<std::string, PyFunction::ptr> functionArray;
 
-        vector<PyObject *> RF_vect;
+        std::vector<PyObject *> RF_vect;
         std::shared_ptr<PyObject> pList_;
     };
 

@@ -39,8 +39,13 @@ set(LIB_SRC
     network/address.cpp
     network/socket.cpp
     Tcpserver/Tcpserver.cpp
+    fiber/fiber.cpp
+    fiber/scheduler.cpp
+    fiber/iomanager.cpp
+    hook/hook.cpp
     FTP/ftp.cpp
     FTP/ftp_cmd.cpp
+    fd_manager.cpp
     http/http.cpp
     http/http11_parser.rl.cc
     http/httpclient_parser.rl.cc
@@ -50,8 +55,9 @@ set(LIB_SRC
     http/servlet.cpp
     http/http_connection.cpp
     http/uri.rl.cc
-
+    FileWR/fileWR.cpp
     ThreadPool/ThreadPool.cpp
+    ThreadPool/thread.cpp
     db/base/connectionPool.cpp
     db/base/mysqlconn.cpp
     db/datahandle/base_db_handle.cpp
@@ -95,6 +101,6 @@ endif()
 # set(LIBS lyserver ${jsoncpp_LIBRARIES} pthread mysqlclient ${CURL_LIBRARIES} ${CrytoPP_LIBRARIES} yaml-cpp ${Python_LIBRARIES})
 set(LIBS lyserver jsoncpp pthread mysqlclient curl crypto yaml-cpp ${Python_LIBRARIES})
 # set(LIBS lyserver jsoncpp pthread mysqlclient curl crypto yaml-cpp)
-ly_add_executable(ly_server "${PROJECT_SOURCE_DIR}/example/main.cpp" lyserver "${LIBS}")
-
-ly_add_executable(server "${PROJECT_SOURCE_DIR}/lyserver/test/test_httpconnection.cpp" lyserver "${LIBS}")
+ly_add_executable(ly_server "${PROJECT_SOURCE_DIR}/example/echoserver.cpp" lyserver "${LIBS}")
+ly_add_executable(http_server "${PROJECT_SOURCE_DIR}/example/httpserver.cpp" lyserver "${LIBS}")
+ly_add_executable(server "${PROJECT_SOURCE_DIR}/lyserver/test/test_tcp_server.cpp" lyserver "${LIBS}")

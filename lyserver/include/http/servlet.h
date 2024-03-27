@@ -10,7 +10,7 @@
 #include "http_session.h"
 // #include "thread.h"
 #include "myutil.h"
-
+#include "fileWR.h"
 namespace lyserver {
 namespace http {
 
@@ -37,7 +37,7 @@ public:
     /**
      * @brief 处理请求
      * @param[in] request HTTP请求
-     * @param[in] response HTTP响应
+     * @param[in] response HTTP响应,传出参数
      * @param[in] session HTTP连接
      * @return 是否处理成功
      */
@@ -78,7 +78,10 @@ private:
     /// 回调函数
     callback m_cb;
 };
-
+/**
+ * @brief 创建Servlet的基类
+ * 
+ */
 class IServletCreator {
 public:
     typedef std::shared_ptr<IServletCreator> ptr;
@@ -86,7 +89,10 @@ public:
     virtual Servlet::ptr get() const = 0;
     virtual std::string getName() const = 0;
 };
-
+/**
+ * @brief 保存Servlet实列对象
+ * 
+ */
 class HoldServletCreator : public IServletCreator {
 public:
     typedef std::shared_ptr<HoldServletCreator> ptr;
@@ -104,7 +110,11 @@ public:
 private:
     Servlet::ptr m_servlet;
 };
-
+/**
+ * @brief 创建Servlet的模板类
+ * 
+ * @tparam T 
+ */
 template<class T>
 class ServletCreator : public IServletCreator {
 public:
@@ -258,6 +268,26 @@ public:
 
 private:
     std::string m_name;
+    std::string m_content;
+};
+/**
+ * @brief URL
+ * 
+ */
+class URLServlet : public Servlet {
+public:
+    /// 智能指针类型定义
+    typedef std::shared_ptr<URLServlet> ptr;
+    /**
+     * @brief 构造函数
+     */
+    URLServlet(const std::string& name);
+    virtual int32_t handle(lyserver::http::HttpRequest::ptr request
+                   , lyserver::http::HttpResponse::ptr response
+                   , lyserver::http::HttpSession::ptr session) override;
+    void setURL(const std::string& url);
+
+private:
     std::string m_content;
 };
 

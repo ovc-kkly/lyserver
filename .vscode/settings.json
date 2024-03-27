@@ -68,6 +68,7 @@
         "variant": "cpp",
         "bitset": "cpp",
         "optional": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "cerrno": "cpp"
     }
 }

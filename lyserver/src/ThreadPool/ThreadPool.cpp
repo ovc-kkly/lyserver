@@ -41,11 +41,6 @@ namespace lyserver
         {
             // 实例化任务队列
             m_taskQ = new TaskQueue;
-            if (m_taskQ == nullptr)
-            {
-                LY_LOG_ERROR(g_logger) << "new m_taskQ fail...";
-                break;
-            }
             // 初始化线程池
             m_minNum = min;
             m_maxNum = max;
@@ -53,15 +48,8 @@ namespace lyserver
             m_aliveNum = min;
             m_exitNum = 0;
 
-            m_threadIDs = new pthread_t[max]; // 实例化一个数组(每个元素都是pthread_t类型的，有max个元素)线程ID,返回一个指向数组首元素的一个指针
-            if (m_threadIDs == nullptr)
-            {
-                LY_LOG_ERROR(g_logger) << "new threadIDs fail...";
-                break;
-            }
-            memset(m_threadIDs, 0, sizeof(pthread_t) * max); // 初始化线程ID的数组元素
-
-            // 初始化互斥锁,条件变量
+        
+            // 初始化条件变量
             if (pthread_cond_init(&m_notEmpty, NULL) != 0)
             {
                 LY_LOG_ERROR(g_logger) << "init mutex or condition fail...";
@@ -70,22 +58,27 @@ namespace lyserver
             m_shutdown = false;
             /////////////////// 创建线程 //////////////////
             // 创建管理者线程, 1个
-            pthread_create(&m_managerID, NULL, manager, this);
+            // pthread_create(&m_managerID, NULL, manager, this);
+            m_manager = new Thread(std::bind(&ThreadPool::manager, this), "manager_thread");
             // 根据最小线程个数, 创建线程
             for (int i = 0; i < min; ++i)
             {
-                pthread_create(&m_threadIDs[i], NULL, worker, this);
-                // LY_LOG_INFO(g_logger) << "创建子线程, ID: " << to_string(m_threadIDs[i]);
+                // pthread_create(&m_threadIDs[i], NULL, worker, this);
+                m_threads.emplace_back(std::make_shared<Thread>(std::bind(&ThreadPool::worker, this), "worker_thread"));
             }
             LY_LOG_INFO(g_logger) << "创建子线程,个数： " << to_string(min);
         } while (0);
     }
-
+    void ThreadPool::addThread(std::function<void()>& cb, const string& name)
+    {
+        m_threads.emplace_back(std::make_shared<Thread>(cb, name));
+    }
     ThreadPool::~ThreadPool()
     {
         m_shutdown = true;
         // 销毁管理者线程
-        pthread_join(m_managerID, NULL);
+        // pthread_join(m_managerID, NULL);
+        m_manager->join();
         // 唤醒所有消费者线程
         for (int i = 0; i < m_aliveNum; ++i)
         {
@@ -94,13 +87,10 @@ namespace lyserver
 
         if (m_taskQ)
             delete m_taskQ;
-        if (m_threadIDs)
-            delete[] m_threadIDs;
-        // pthread_mutex_destroy(&m_lock);
         pthread_cond_destroy(&m_notEmpty);
     }
 
-    void *ThreadPool::worker(void *arg)
+    void ThreadPool::worker(void *arg)
     {
         ThreadPool *pool = static_cast<ThreadPool *>(arg); // 把万能参数进行强制类型转换，传进来的参数arg是ThreadPool的指针对象
 
@@ -125,6 +115,7 @@ namespace lyserver
                         pool->m_aliveNum--;
                         // pthread_mutex_unlock(&pool->m_lock);
                         locker.unlock();
+                        
                         pool->threadExit();
                     }
                 }
@@ -157,12 +148,10 @@ namespace lyserver
                 locker.unlock();
             }
         }
-
-        return nullptr;
     }
 
     // 管理者线程任务函数
-    void *ThreadPool::manager(void *arg)
+    void ThreadPool::manager(void *arg)
     {
         ThreadPool *pool = static_cast<ThreadPool *>(arg);
         // 如果线程池没有关闭, 就一直检测
@@ -192,12 +181,15 @@ namespace lyserver
                 // 直接创建两个线程，NUMBER=2
                 for (int i = 0; i < pool->m_maxNum && num < NUMBER && pool->m_aliveNum < pool->m_maxNum; ++i)
                 {
-                    if (pool->m_threadIDs[i] == 0) // 从线程数组中找到没有用的元素
-                    {
-                        pthread_create(&pool->m_threadIDs[i], NULL, worker, pool);
-                        num++;
-                        pool->m_aliveNum++;
-                    }
+                    // if (pool->m_threadIDs[i] == 0) // 从线程数组中找到没有用的元素
+                    // {
+                    //     pthread_create(&pool->m_threadIDs[i], NULL, worker, pool);
+                    //     num++;
+                    //     pool->m_aliveNum++;
+                    // }
+                    pool->m_threads.emplace_back(std::make_shared<Thread>(std::bind(&ThreadPool::worker, pool), "worker_thread"));
+                    num++;
+                    pool->m_aliveNum++;
                 }
                 // pthread_mutex_unlock(&pool->m_lock);
                 locker.unlock();
@@ -218,7 +210,6 @@ namespace lyserver
                 }
             }
         }
-        return nullptr;
     }
 
     void ThreadPool::addTask(Task task)
@@ -252,16 +243,15 @@ namespace lyserver
     }
 
     // 线程退出
-
     void ThreadPool::threadExit()
     {
         pthread_t tid = pthread_self();
-        for (int i = 0; i < m_maxNum; ++i)
+        for (auto it = m_threads.begin(); it != m_threads.end(); ++it)
         {
-            if (m_threadIDs[i] == tid)
+            if ((*it)->getThread() == tid)
             {
-                m_threadIDs[i] = 0;
                 LY_LOG_ERROR(g_logger) << "threadExit() function: thread" << to_string(tid) << "exiting...";
+                m_threads.erase(it);
                 break;
             }
         }

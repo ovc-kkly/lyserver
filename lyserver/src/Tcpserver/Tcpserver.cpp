@@ -1,85 +1,101 @@
 #include "Tcpserver.h"
+#include "config.h"
+#include "log.h"
 
 namespace lyserver
 {
+
     static lyserver::ConfigVar<uint64_t>::ptr g_tcp_server_read_timeout = lyserver::Config::Lookup("tcp_server.read_timeout", (uint64_t)(60 * 1000 * 2), "tcp server read timeout");
 
     static lyserver::Logger::ptr g_logger = LY_LOG_NAME("system");
-    TcpServer::TcpServer() : m_name("lyserver/1.0.0"), m_isStop(true), m_recvTimeout(g_tcp_server_read_timeout->getValue()), server_Timer("Yes"), client_Timer("No")
-    {
-        // LoadConfig();
 
-        main_reactor.reset(new MainReactor(server_Timer));
-        sub_reactor.reset(new SubReactor);
-        connptr.reset(new Connection(sub_reactor));
-        acceptr.reset(new Acceptor(main_reactor, sub_reactor, connptr, client_Timer));
-        pool.reset(new ThreadPool(4, 10));
-        m_sigHandle.reset(new SigHandle);
+    TcpServer::TcpServer(lyserver::IOManager *worker,
+                         lyserver::IOManager *io_worker,
+                         lyserver::IOManager *accept_worker)
+        : m_worker(worker), m_ioWorker(io_worker), m_acceptWorker(accept_worker), m_recvTimeout(g_tcp_server_read_timeout->getValue()), m_name("lyserver/1.0.0"), m_isStop(true)
+    {
     }
+
     TcpServer::~TcpServer()
     {
-    }
-    void TcpServer::LoadConfig(const std::string &path)
-    {
-        YAML::Node ListenYaml = YAML::LoadFile(path);
-        lyserver::Config::LoadFromYaml(ListenYaml); // 把配置参数加载进了静态变量
-        
-    }
-    void TcpServer::init(call_back_ cb)
-    {
-        if(m_type == "tcp"){
-            
+        for (auto &i : m_socks)
+        {
+            i->close();
         }
-        else if(m_type == "http"){
-            connptr->setHttp_handle_cb(cb);
-        }
-        main_reactor->init(pool);
-        m_sigHandle->SetSignalHandler(SIGINT, handleSignal);
+        m_socks.clear();
     }
-    bool TcpServer::bind(lyserver::Address::ptr addr, bool ssl, serverType type)
+
+    void TcpServer::setConf(const TcpServerConf &v)
     {
-        std::map<serverType, Address::ptr> addrs;
-        std::map<serverType, Address::ptr> fails;
-        // acceptr->addAddress(addr);
-        // acceptr->start(type);
-        addrs.insert(std::pair<serverType, Address::ptr>(type, addr));
-        return bind(addrs, fails, ssl);
-        return true;
+        m_conf.reset(new TcpServerConf(v));
     }
+
     bool TcpServer::bind(lyserver::Address::ptr addr, bool ssl)
     {
-        // std::vector<Address::ptr> addrs;
-        // std::vector<Address::ptr> fails;
-        // addrs.push_back(addr);
-        // return bind(addrs, fails, ssl);
-        return true;
+        std::vector<Address::ptr> addrs;
+        std::vector<Address::ptr> fails;
+        addrs.push_back(addr);
+        return bind(addrs, fails, ssl);
     }
-    bool TcpServer::bind(const std::map<serverType, Address::ptr> &addrs, std::map<serverType, Address::ptr> &fails, bool ssl)
+
+    bool TcpServer::bind(const std::vector<Address::ptr> &addrs, std::vector<Address::ptr> &fails, bool ssl)
     {
+        m_ssl = ssl;
         for (auto &addr : addrs)
         {
-            acceptr->addAddress(addr.second);
-            if (!acceptr->start(addr.first, m_recvTimeout))
+            Socket::ptr sock = ssl ? SSLSocket::CreateTCP(addr) : Socket::CreateTCP(addr);
+            if (!sock->bind(addr))
             {
                 LY_LOG_ERROR(g_logger) << "bind fail errno="
                                        << errno << " errstr=" << strerror(errno)
-                                       << " addr=[" << addr.second->toString() << "]";
-                fails.insert(pair<serverType, Address::ptr>(addr.first, addr.second));
+                                       << " addr=[" << addr->toString() << "]";
+                fails.push_back(addr);
                 continue;
             }
-            // m_socks.push_back();
+            if (!sock->listen())
+            {
+                LY_LOG_ERROR(g_logger) << "listen fail errno="
+                                       << errno << " errstr=" << strerror(errno)
+                                       << " addr=[" << addr->toString() << "]";
+                fails.push_back(addr);
+                continue;
+            }
+            m_socks.push_back(sock);
         }
+
         if (!fails.empty())
         {
+            m_socks.clear();
             return false;
+        }
+
+        for (auto &i : m_socks)
+        {
+            LY_LOG_INFO(g_logger) << "type=" << m_type
+                                  << " name=" << m_name
+                                  << " ssl=" << m_ssl
+                                  << " server bind success: " << *i;
         }
         return true;
     }
 
-    /**
-     * @brief 启动服务
-     * @pre 需要bind成功后执行
-     */
+    void TcpServer::startAccept(Socket::ptr sock)
+    {
+        while (!m_isStop)
+        {
+            Socket::ptr client = sock->accept();
+            if (client)
+            {
+                client->setRecvTimeout(m_recvTimeout);
+                m_ioWorker->schedule(std::bind(&TcpServer::handleClient, shared_from_this(), client));
+            }
+            else
+            {
+                LY_LOG_ERROR(g_logger) << "accept errno=" << errno << " errstr=" << strerror(errno);
+            }
+        }
+    }
+
     bool TcpServer::start()
     {
         if (!m_isStop)
@@ -87,42 +103,61 @@ namespace lyserver
             return true;
         }
         m_isStop = false;
-
-        // CALL_BACK startaccept = My_events::make_callback(&TcpServer::startAccept, this);
-        // pool->addTask(Task(startaccept));
-        startAccept();
+        for (auto &sock : m_socks)
+        {
+            m_acceptWorker->schedule(std::bind(&TcpServer::startAccept, shared_from_this(), sock));
+        }
         return true;
     }
 
-    /**
-     * @brief 停止服务
-     */
     void TcpServer::stop()
     {
         m_isStop = true;
         auto self = shared_from_this();
-        this->acceptr->stop();
-    }
-
-    int TcpServer::handleClient(Socket::ptr client)
-    {
-        return 0;
-    }
-    void TcpServer::startAccept()
-    {
-        while (!m_isStop)
-        {
-            CALL_BACK subfun = My_events::make_callback(&SubReactor::subEventloop, sub_reactor.get(), pool);
-            pool->addTask(Task(subfun));
-            CALL_BACK mainfun = My_events::make_callback(&MainReactor::Eventloop, main_reactor.get(), pool);
-            // pool->addTask(Task(mainfun));
-            mainfun();
+        m_acceptWorker->schedule([this, self]()
+                                 {
+        for(auto& sock : m_socks) {
+            sock->cancelAll();
+            sock->close();
         }
+        m_socks.clear(); });
     }
 
-    void TcpServer::setConf(const TcpServerConf &v)
+    void TcpServer::handleClient(Socket::ptr client)
     {
-        m_conf.reset(new TcpServerConf(v));
+        LY_LOG_INFO(g_logger) << "handleClient: " << *client;
+    }
+
+    bool TcpServer::loadCertificates(const std::string &cert_file, const std::string &key_file)
+    {
+        for (auto &i : m_socks)
+        {
+            auto ssl_socket = std::dynamic_pointer_cast<SSLSocket>(i);
+            if (ssl_socket)
+            {
+                if (!ssl_socket->loadCertificates(cert_file, key_file))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    std::string TcpServer::toString(const std::string &prefix)
+    {
+        std::stringstream ss;
+        ss << prefix << "[type=" << m_type
+           << " name=" << m_name << " ssl=" << m_ssl
+           << " worker=" << (m_worker ? m_worker->getName() : "")
+           << " accept=" << (m_acceptWorker ? m_acceptWorker->getName() : "")
+           << " recv_timeout=" << m_recvTimeout << "]" << std::endl;
+        std::string pfx = prefix.empty() ? "    " : prefix;
+        for (auto &i : m_socks)
+        {
+            ss << pfx << pfx << *i << std::endl;
+        }
+        return ss.str();
     }
 
 }

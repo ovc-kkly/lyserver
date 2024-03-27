@@ -40,7 +40,7 @@ namespace lyserver
                 { delete[] ptr; });
             char *data = buffer.get();
             int offset = 0; // 未解析数据的长度，就是响应体
-            // 读http请求内容，解析请求行和请求头保存在parser的HttpRequest对象
+            // 读http响应内容，解析响应行和响应头保存在parser的HttpRequest对象
             do
             {
                 int len = read(data + offset, buff_size - offset);
@@ -70,6 +70,7 @@ namespace lyserver
             } while (true);
             auto &client_parser = parser->getParser();
             std::string body;
+            //如果分段接收进入
             if (client_parser.chunked)
             {
                 int len = offset;
@@ -349,7 +350,7 @@ namespace lyserver
             }
             m_total -= invalid_conns.size();
 
-            if (!ptr)
+            if (!ptr)//进入这里代表，连接池没连接，那么就创建一个连接对象
             {
                 IPAddress::ptr addr = Address::LookupAnyIPAddress(m_host);
                 if (!addr)
@@ -450,7 +451,11 @@ namespace lyserver
             {
                 if (m_vhost.empty())
                 {
-                    req->setHeader("Host", m_host);
+                    if(m_host.empty()){
+                        LY_LOG_ERROR(g_logger)<< "http host empty, m_host: " << m_host;
+                    }else{
+                        req->setHeader("Host", m_host);
+                    }
                 }
                 else
                 {

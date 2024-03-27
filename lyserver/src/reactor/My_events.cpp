@@ -81,4 +81,12 @@ namespace lyserver
         type = -1;
         // LY_LOG_INFO(g_logger) << "重置完毕";
     }
+    void My_events::clearhttp()
+    {
+        call_back = nullptr;
+        m_events = 0;
+        // m_fd = 0;
+        sockptr.reset();
+        m_status = 0;
+    }
 }

@@ -9,6 +9,7 @@
 #include <memory>
 #include <functional>
 #include <tuple>
+#include "thread.h"
 #include "log.h"
 using namespace std;
 
@@ -63,6 +64,9 @@ namespace lyserver
 
         // 给线程池添加任务
         void addTask(Task task);
+        void addThread(std::function<void()>& cb, const string& name);
+        bool isThreadempty(){return m_threads.empty();}
+        int getThreadID(int i){return m_threads[i]->getId();}
         // void addTask(Task<T><SockInfo> task);
         //  获取忙线程的个数
         int getBusyNumber();
@@ -71,9 +75,9 @@ namespace lyserver
 
     private:
         // 工作的线程的任务函数
-        static void *worker(void *arg); // 静态成员函数只能访问静态变量,不能访问普通成员变量
+        static void worker(void *arg); // 静态成员函数只能访问静态变量,不能访问普通成员变量
         // 管理者线程的任务函数
-        static void *manager(void *arg);
+        static void manager(void *arg);
         void threadExit();
 
     private:
@@ -81,8 +85,10 @@ namespace lyserver
         // pthread_mutex_t m_lock;    // 锁整个线程池的一个锁
         Mutex m_lock;
         pthread_cond_t m_notEmpty; // 条件变量
-        pthread_t *m_threadIDs;    // 工作的线程ID
-        pthread_t m_managerID;     // 管理者线程ID
+        std::vector<Thread::ptr> m_threads; // 工作线程
+        // pthread_t *m_threadIDs;    // 工作的线程ID
+        // pthread_t m_managerID;     // 管理者线程ID
+        Thread* m_manager;
 
         int m_minNum;            // 最小线程数
         int m_maxNum;            // 最大线程数

@@ -22,7 +22,10 @@ public:
      * @param[in] worker 工作调度器
      * @param[in] accept_worker 接收连接调度器
      */
-    HttpServer(bool keepalive = false);
+    HttpServer(bool keepalive = false
+               ,lyserver::IOManager* worker = lyserver::IOManager::GetThis()
+               ,lyserver::IOManager* io_worker = lyserver::IOManager::GetThis()
+               ,lyserver::IOManager* accept_worker = lyserver::IOManager::GetThis());
 
     /**
      * @brief 获取ServletDispatch
@@ -35,18 +38,15 @@ public:
     void setServletDispatch(ServletDispatch::ptr v) { m_dispatch = v;}
 
     virtual void setName(const std::string& v) override;
-
-    call_back_ make_cb();
 protected:
-    virtual int handleClient(Socket::ptr client) override;
+    virtual void handleClient(Socket::ptr client) override;
 private:
     /// 是否支持长连接
     bool m_isKeepalive;
     /// Servlet分发器
     ServletDispatch::ptr m_dispatch;
+    vector<URLServlet::ptr> urls;
 };
-
 }
 }
-
 #endif

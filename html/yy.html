@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>炫酷自我介绍</title>
+<style>
+  /* ... 其他样式 ... */
+
+  #infoButton {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="introModal" class="fadeIn">
+  <!-- ... 其他内容 ... -->
+  <button id="infoButton">了解更多</button>
+  <button onclick="closeModal()">关闭</button>
+</div>
+
+<script>
+// ... 其他JavaScript代码 ...
+
+// 发送请求到服务器的特定端点
+function fetchInfo() {
+  fetch('http://127.0.0.1:8020/lyserver/ly/school')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json(); // 解析JSON格式的响应体
+    })
+    .then(data => {
+      console.log(data); // 在控制台打印返回的数据
+      // 这里可以根据返回的数据执行进一步的操作，例如更新页面内容
+    })
+    .catch(error => {
+      console.error('There has been a problem with your fetch operation:', error);
+    });
+}
+
+// 为“了解更多”按钮添加点击事件监听器
+document.getElementById('infoButton').addEventListener('click', fetchInfo);
+
+// 关闭模态窗口的函数
+function closeModal() {
+  var modal = document.getElementById('introModal');
+  modal.style.display = 'none';
+}
+
+// 页面加载完成后调用introduceMyself函数
+window.onload = introduceMyself;
+</script>
+</body>
+</html>

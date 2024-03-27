@@ -30,6 +30,7 @@ namespace lyserver
         void init();
 
         void clear();
+        void clearhttp();
         // 更改
         void Myev_set(const CALL_BACK &callback);
         // 重载更改

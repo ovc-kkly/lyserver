@@ -19,10 +19,10 @@ namespace lyserver
 #define GET_ID_FD(X, count) X::GetInstance()->get_ID_FD(count)
 #define GET_ID_FD_1(X) X::GetInstance()->get_ID_FD(1)
 #define EVENT_SIZE 1024
-    class FdManager;
+    class Fd_Manager;
     class Fdmanager : Noncopyable
     {
-        friend class FdManager;
+        friend class Fd_Manager;
 
     public:
         // My_events t;
@@ -139,7 +139,7 @@ namespace lyserver
          * @param epfdType
          * @return pair<map<int, int>::iterator, bool>
          */
-        pair<map<int, Epollmanager>::iterator, bool> addepfd(int fd, const reactor_type &epfdType, const Epollmanager &epmgr);
+        std::pair<std::map<int, Epollmanager>::iterator, bool> addepfd(int fd, const reactor_type &epfdType, const Epollmanager &epmgr);
         /**
          * @brief 获取存储结构中的ID_FD
          *
@@ -194,7 +194,7 @@ namespace lyserver
          * @param b
          */
         void free_client_resources(My_events *myev, const char *str, bool &&b, Epollmanager *epollmagr);
-
+        void free_http_resources(My_events *myev, const char *str, bool &&b, Epollmanager *epollmagr);
         /**
          * @brief 从map中找到对应类型的且合适的epfd
          *
@@ -251,7 +251,7 @@ namespace lyserver
             fds->delete_fds();
         }
     };
-    class FdManager
+    class Fd_Manager
     {
     public:
         Fdmanager::ptr getFdmgr_ptr()
@@ -272,7 +272,7 @@ namespace lyserver
     private:
         RWMutex mutex;
     };
-    typedef Singleton<FdManager> FdMgr;
+    typedef Singleton<Fd_Manager> FdMgr_;
 
 }
 

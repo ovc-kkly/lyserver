@@ -1,10 +1,11 @@
 #include "reactor/reactor.h"
+// #include "http_connection.h"
 namespace lyserver
 {
     static lyserver::Logger::ptr g_logger = LY_LOG_NAME("system");
     Reactor::Reactor()
     {
-        fdmagr = FdMgr::GetInstance()->getFdmgr_ptr(); // 单例模式
+        fdmagr = FdMgr_::GetInstance()->getFdmgr_ptr(); // 单例模式
         EventH = EvMgr::GetInstance()->getEvmgr_ptr();
     }
 
@@ -625,9 +626,9 @@ namespace lyserver
     }
     /**
      * @brief HTTP处理事件
-     * 
-     * @param myev 
-     * @param fdmagr 
+     *
+     * @param myev
+     * @param fdmagr
      */
     void Connection::handle_http_event(My_events *myev, Fdmanager::ptr fdmagr)
     {
@@ -639,7 +640,7 @@ namespace lyserver
         }
         else if (ret == 0)
         {
-            fdmagr->free_client_resources(myev, "Http disconnect_", false, fdmagr->get_epollmgr(myev));
+            fdmagr->free_http_resources(myev, "Http disconnect_", false, fdmagr->get_epollmgr(myev));
             return;
         }
         else if (ret == -1)
@@ -651,17 +652,17 @@ namespace lyserver
             }
             else
             {
-                
+
                 LY_LOG_DEBUG(g_logger) << "recv http request fail, errno="
                                        << errno << " errstr=" << strerror(errno)
                                        << " cliet:" << *(myev->sockptr);
-                fdmagr->free_client_resources(myev, strerror(errno), false, fdmagr->get_epollmgr(myev));
+                fdmagr->free_http_resources(myev, strerror(errno), false, fdmagr->get_epollmgr(myev));
             }
 
             return;
         }
 
-        reactor_->getEpollMgr()->reset_oneshot(myev, EPOLLIN, Httpfun);
+        // reactor_->getEpollMgr()->reset_oneshot(myev, EPOLLIN, Httpfun);
     }
     // 判断事件类型
     int Connection::JudgeEventType(const char *buff, My_events *myev)
@@ -737,6 +738,14 @@ namespace lyserver
             this->addTimer(1000, detectionfun, true);
         }
 
+        // using namespace lyserver::http;
+        // HttpConnectionPool::ptr conn(new HttpConnectionPool("www.baidu.com", "", 80, false, 10, 1000 * 30, 5));
+
+        // this->addTimer(1000, [conn](){
+        //     auto rsp = conn->doGet("/", 300);
+        //     LY_LOG_INFO(g_logger)<< rsp->toString(); },true
+        // );
+
         EventH->register_Event_callback(); // 注册回调函数
     }
     void MainReactor::Eventloop(ThreadPool::ptr p)
@@ -767,7 +776,7 @@ namespace lyserver
             int n_ready;
             do
             {
-                static const int MAX_TIMEOUT = 2000;
+                static const int MAX_TIMEOUT = 1000;
                 if (next_timeout != ~0ull)
                 {
                     next_timeout = (int)next_timeout > MAX_TIMEOUT ? MAX_TIMEOUT : next_timeout;

@@ -1,10 +1,10 @@
 #include "socket.h"
-// #include "iomanager.h"
-#include "fdmanager.h"
+#include "iomanager.h"
+#include "fd_manager.h"
 #include "log.h"
 #include "macro.h"
 #include <limits.h>
-
+#include "hook.h"
 namespace lyserver
 {
 
@@ -74,15 +74,15 @@ namespace lyserver
         close();
     }
 
-    // int64_t Socket::getSendTimeout()
-    // {
-    //     FdCtx::ptr ctx = FdMgr::GetInstance()->get(m_sock);
-    //     if (ctx)
-    //     {
-    //         return ctx->getTimeout(SO_SNDTIMEO);
-    //     }
-    //     return -1;
-    // }
+    int64_t Socket::getSendTimeout()
+    {
+        FdCtx::ptr ctx = FdMgr::GetInstance()->get(m_sock);
+        if (ctx)
+        {
+            return ctx->getTimeout(SO_SNDTIMEO);
+        }
+        return -1;
+    }
 
     void Socket::setSendTimeout(int64_t v)
     {
@@ -93,15 +93,15 @@ namespace lyserver
         setOption(SOL_SOCKET, SO_SNDTIMEO, tv);
     }
 
-    // int64_t Socket::getRecvTimeout()
-    // {
-    //     FdCtx::ptr ctx = FdMgr::GetInstance()->get(m_sock);
-    //     if (ctx)
-    //     {
-    //         return ctx->getTimeout(SO_RCVTIMEO);
-    //     }
-    //     return -1;
-    // }
+    int64_t Socket::getRecvTimeout()
+    {
+        FdCtx::ptr ctx = FdMgr::GetInstance()->get(m_sock);
+        if (ctx)
+        {
+            return ctx->getTimeout(SO_RCVTIMEO);
+        }
+        return -1;
+    }
 
     void Socket::setRecvTimeout(int64_t v)
     {
@@ -161,16 +161,16 @@ namespace lyserver
 
     bool Socket::init(int sock)
     {
-        // FdCtx::ptr ctx = FdMgr::GetInstance()->get(sock);
-        // if (ctx && ctx->isSocket() && !ctx->isClose())
-        // {
-        //     m_sock = sock;
-        //     m_isConnected = true;
-        //     initSock();
-        //     getLocalAddress();
-        //     getRemoteAddress();
-        //     return true;
-        // }
+        FdCtx::ptr ctx = FdMgr::GetInstance()->get(sock);
+        if (ctx && ctx->isSocket() && !ctx->isClose())
+        {
+            m_sock = sock;
+            m_isConnected = true;
+            initSock();
+            getLocalAddress();
+            getRemoteAddress();
+            return true;
+        }
         m_sock = sock;
         m_isConnected = true;
         initSock();
@@ -268,14 +268,14 @@ namespace lyserver
         }
         else
         {
-            // if (::connect_with_timeout(m_sock, addr->getAddr(), addr->getAddrLen(), timeout_ms))
-            // {
-            //     LY_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
-            //                            << ") timeout=" << timeout_ms << " error errno="
-            //                            << errno << " errstr=" << strerror(errno);
-            //     close();
-            //     return false;
-            // }
+            if (::connect_with_timeout(m_sock, addr->getAddr(), addr->getAddrLen(), timeout_ms))
+            {
+                LY_LOG_ERROR(g_logger) << "sock=" << m_sock << " connect(" << addr->toString()
+                                       << ") timeout=" << timeout_ms << " error errno="
+                                       << errno << " errstr=" << strerror(errno);
+                close();
+                return false;
+            }
         }
         m_isConnected = true;
         getRemoteAddress();
@@ -517,25 +517,25 @@ namespace lyserver
         return ss.str();
     }
 
-    // bool Socket::cancelRead()
-    // {
-    //     return IOManager::GetThis()->cancelEvent(m_sock, lyserver::IOManager::READ);
-    // }
+    bool Socket::cancelRead()
+    {
+        return IOManager::GetThis()->cancelEvent(m_sock, lyserver::IOManager::READ);
+    }
 
-    // bool Socket::cancelWrite()
-    // {
-    //     return IOManager::GetThis()->cancelEvent(m_sock, lyserver::IOManager::WRITE);
-    // }
+    bool Socket::cancelWrite()
+    {
+        return IOManager::GetThis()->cancelEvent(m_sock, lyserver::IOManager::WRITE);
+    }
 
-    // bool Socket::cancelAccept()
-    // {
-    //     return IOManager::GetThis()->cancelEvent(m_sock, lyserver::IOManager::READ);
-    // }
+    bool Socket::cancelAccept()
+    {
+        return IOManager::GetThis()->cancelEvent(m_sock, lyserver::IOManager::READ);
+    }
 
-    // bool Socket::cancelAll()
-    // {
-    //     return IOManager::GetThis()->cancelAll(m_sock);
-    // }
+    bool Socket::cancelAll()
+    {
+        return IOManager::GetThis()->cancelAll(m_sock);
+    }
 
     void Socket::initSock()
     {

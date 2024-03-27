@@ -21,7 +21,7 @@
  */
 #define LY_LOG_LEVEL(logger, level)  \
     if (logger->getLevel() <= level) \
-        lyserver::LogEventWrap(lyserver::LogEvent::ptr(new lyserver::LogEvent(logger, level, __FILE__, __LINE__, 0, syscall(SYS_gettid), 0, time(0), "UNKNOW"))).getSS()
+        lyserver::LogEventWrap(lyserver::LogEvent::ptr(new lyserver::LogEvent(logger, level, __FILE__, __LINE__, 0, lyserver::GetThreadId(), lyserver::GetFiberId(), time(0), lyserver::Thread::GetName()))).getSS()
 
 /**
  * @brief 使用流式方式将日志级别debug的日志写入到logger

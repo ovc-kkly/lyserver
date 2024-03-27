@@ -5,9 +5,8 @@ namespace lyserver
 {
     namespace http
     {
-
-        FunctionServlet::FunctionServlet(callback cb)
-            : Servlet("FunctionServlet"), m_cb(cb)
+        static Logger::ptr g_logger = LY_LOG_NAME("system");
+        FunctionServlet::FunctionServlet(callback cb):Servlet("FunctionServlet"), m_cb(cb)
         {
         }
 
@@ -16,8 +15,7 @@ namespace lyserver
             return m_cb(request, response, session);
         }
 
-        ServletDispatch::ServletDispatch()
-            : Servlet("ServletDispatch")
+        ServletDispatch::ServletDispatch():Servlet("ServletDispatch")
         {
             m_default.reset(new NotFoundServlet("lyserver/1.0"));
         }
@@ -25,7 +23,12 @@ namespace lyserver
         int32_t ServletDispatch::handle(lyserver::http::HttpRequest::ptr request, lyserver::http::HttpResponse::ptr response, lyserver::http::HttpSession::ptr session)
         {
             auto slt = getMatchedServlet(request->getPath());
-            if (slt)
+            /*找到了匹配结果，即Servlet的派生类，可能是
+            *   FunctionServlet或者
+                NotFoundServlet或者
+                URLServlet
+            */
+            if (slt)//再调用派生类所重写的虚函数
             {
                 slt->handle(request, response, session);
             }
@@ -35,7 +38,7 @@ namespace lyserver
         void ServletDispatch::addServlet(const std::string &uri, Servlet::ptr slt)
         {
             RWMutexType::WriteLock lock(m_mutex);
-            m_datas[uri] = std::make_shared<HoldServletCreator>(slt);
+            m_datas[uri] = std::make_shared<HoldServletCreator>(slt);//直接调用构造函数初始化里面的Servlet实列对象
         }
 
         void ServletDispatch::addServletCreator(const std::string &uri, IServletCreator::ptr creator)
@@ -179,6 +182,31 @@ namespace lyserver
             response->setBody(m_content);
             return 0;
         }
+        URLServlet::URLServlet(const std::string &name)
+            : Servlet("urlServlet")
+        {
+        }
 
+        void URLServlet::setURL(const std::string &url)
+        {
+            FileReader::ptr fr(new FileReader(url));
+            if (fr->readFile())
+            {
+                const std::string str = fr->getContent();
+                m_content = str;
+            }
+            else
+            {
+                LY_LOG_ERROR(g_logger) << "读取文件错误";
+            }
+        }
+        int32_t URLServlet::handle(lyserver::http::HttpRequest::ptr request, lyserver::http::HttpResponse::ptr response, lyserver::http::HttpSession::ptr session)
+        {
+            response->setStatus(lyserver::http::HttpStatus::OK);
+            response->setHeader("Server", "lyserver/1.0.0");
+            response->setHeader("Content-Type", "text/html");
+            response->setBody(m_content);
+            return 1;
+        }
     }
 }

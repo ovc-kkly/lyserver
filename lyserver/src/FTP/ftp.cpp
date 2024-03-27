@@ -4,7 +4,7 @@ namespace lyserver
 {
     static lyserver::Logger::ptr g_logger = LY_LOG_NAME("system");
     const char *FTP::directory = "/home/centos/mulu/file_";
-    string FTP::dir_temp = "/home/centos";
+    string FTP::dir_temp = "/home/ly";
 
     download_server2client_info FTP::ds2c = {"", nullptr, 0, nullptr};
     download_client2server_info FTP::dc2s = {0, 0, "", "", nullptr, nullptr};

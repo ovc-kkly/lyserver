@@ -121,11 +121,11 @@ namespace lyserver
         }
         return m;
     }
-    pair<map<int, Epollmanager>::iterator, bool> Fdmanager::addepfd(int fd, const reactor_type &epfdType, const Epollmanager &epmgr)
+    std::pair<std::map<int, Epollmanager>::iterator, bool> Fdmanager::addepfd(int fd, const reactor_type &epfdType, const Epollmanager &epmgr)
     {
 
         RWMutex::WriteLock lock(this->epfd_mutex);
-        pair<map<int, Epollmanager>::iterator, bool> it;
+        std::pair<std::map<int, Epollmanager>::iterator, bool> it;
         switch (epfdType)
         {
         case main_re:
@@ -139,7 +139,7 @@ namespace lyserver
         default:
             break;
         }
-        return pair<map<int, Epollmanager>::iterator, bool>();
+        return std::pair<std::map<int, Epollmanager>::iterator, bool>();
     }
     Fdmanager::umap Fdmanager::get_ID_FD(int block)
     {
@@ -169,7 +169,7 @@ namespace lyserver
         }
     }
 
-    bool Fdmanager::is_exist(const string &ID)
+    bool Fdmanager::is_exist(const std::string &ID)
     {
         RWMutex::ReadLock lock(m_mutex);
         if (Id_Fd->find(ID) != Id_Fd->end())
@@ -179,7 +179,7 @@ namespace lyserver
         }
         return false;
     }
-    int Fdmanager::ID_2_fd(const string &toID)
+    int Fdmanager::ID_2_fd(const std::string &toID)
     {
         int fd;
         RWMutex::ReadLock lock(m_mutex);
@@ -193,7 +193,7 @@ namespace lyserver
         }
         return fd;
     }
-    int Fdmanager::whoID(My_events *myev, string &ID)
+    int Fdmanager::whoID(My_events *myev, std::string &ID)
     {
         if (this->is_exist(ID))
         { // 进入这里代表键值对中已经存在该ID
@@ -232,7 +232,7 @@ namespace lyserver
             }
             LY_LOG_INFO(g_logger) << "no epfd";
             Epollmanager epmgr = epollmagr->create_epollmgr();
-            pair<map<int, Epollmanager>::iterator, bool> it_ = this->addepfd(epmgr.get_epfd(), main_re, epmgr);
+            std::pair<std::map<int, Epollmanager>::iterator, bool> it_ = this->addepfd(epmgr.get_epfd(), main_re, epmgr);
 
             return &(it_.first->first);
         }
@@ -248,7 +248,7 @@ namespace lyserver
             }
             LY_LOG_INFO(g_logger) << "no epfd";
             Epollmanager epmgr = epollmagr->create_epollmgr();
-            pair<map<int, Epollmanager>::iterator, bool> it_ = this->addepfd(epmgr.get_epfd(), sub_re, epmgr);
+            std::pair<std::map<int, Epollmanager>::iterator, bool> it_ = this->addepfd(epmgr.get_epfd(), sub_re, epmgr);
             return &(it_.first->first);
         }
     }
@@ -263,6 +263,13 @@ namespace lyserver
         {
             clear_ID_FD(myev); // 然后删除全局变量ID_FD中的键值对
         }
+    }
+    void Fdmanager::free_http_resources(My_events *myev, const char *str, bool &&b, Epollmanager *epollmagr)
+    {
+        epollmagr->eventdel(myev); // 先从红黑树上删除结点
+        int event = this->subtract_epfd_event(myev->epfd, myev->epfd_type);
+        LY_LOG_INFO(g_logger) << " [Client:" << GET_SOCK_FD(myev) << "] " << str << ",ID:" << myev->ID.c_str() << " epfd:" << myev->epfd << " event:" << event;
+        myev->clearhttp();
     }
     int Fdmanager::add_epfd_event(const int &epfd, const reactor_type &epfd_type)
     {

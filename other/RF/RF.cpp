@@ -8,7 +8,7 @@ namespace Random_Forest
         pyobj = PyMgr::GetInstance()->getPython_ptr();
         pyobj->run("import sys");
     }
-    void RF_base::import_module(const vector<std::string> &module_path)
+    void RF_base::import_module(const std::vector<std::string> &module_path)
     {
         for (auto &path : module_path)
         {
@@ -347,25 +347,25 @@ namespace Random_Forest
     {
 
         // data_features, data_targets, data_predict_features, data_predict_targets
-        std::vector<PyObject *> data_deal_res = run_function<string>("data_deal", data_csv);
+        std::vector<PyObject *> data_deal_res = run_function<std::string>("data_deal", data_csv);
         if (0 == data_deal_res.size())
         {
             LY_LOG_INFO(ly_logger) << "train model fail in data_deal";
         }
         // data_featured, data_predict_featured, vect
-        std::vector<PyObject *> feature_extraction_res = run_function<string>("feature_extraction", data_deal_res[0], data_deal_res[2]);
+        std::vector<PyObject *> feature_extraction_res = run_function<std::string>("feature_extraction", data_deal_res[0], data_deal_res[2]);
         if (0 == feature_extraction_res.size())
         {
             LY_LOG_INFO(ly_logger) << "train model fail in feature_extraction";
         }
         // rf
-        std::vector<PyObject *> split_data_res = run_function<string>("split_data", feature_extraction_res[0], data_deal_res[1]);
+        std::vector<PyObject *> split_data_res = run_function<std::string>("split_data", feature_extraction_res[0], data_deal_res[1]);
         if (0 == split_data_res.size())
         {
             LY_LOG_INFO(ly_logger) << "train model fail in split_data";
         }
         // result
-        std::vector<PyObject *> rf_predict_res = run_function<string>("rf_predict", split_data_res[0], feature_extraction_res[1]);
+        std::vector<PyObject *> rf_predict_res = run_function<std::string>("rf_predict", split_data_res[0], feature_extraction_res[1]);
         if (0 == rf_predict_res.size())
         {
             LY_LOG_INFO(ly_logger) << "train model fail in rf_predict";
@@ -391,7 +391,7 @@ namespace Random_Forest
         std::string all_model_path = save_model_path + "/all_model.pkl";
         std::string all_vect_path = save_model_path + "/all_vect.pkl";
         lyserver::FSUtil::Mkdir(save_model_path);
-        std::vector<PyObject *> save_model_res = run_function<string>("save_model", split_data_res[0], feature_extraction_res[2],
+        std::vector<PyObject *> save_model_res = run_function<std::string>("save_model", split_data_res[0], feature_extraction_res[2],
                                                                       PyUnicode_DecodeFSDefault(all_model_path.c_str()),
                                                                       PyUnicode_DecodeFSDefault(all_vect_path.c_str()));
         if (0 == save_model_res.size())

@@ -24,6 +24,7 @@
 #include <cxxabi.h>
 #include "ocr_car.h"
 #include "ThreadPool.h"
+#include <functional>
 
 namespace lyserver
 {
@@ -46,10 +47,9 @@ namespace lyserver
      * @param[in] skip 跳过栈顶的层数
      */
 
-    // pid_t GetThreadId();
+    pid_t GetThreadId();
 
-    // uint32_t GetFiberId();
-    // const std::string &GetName();
+    uint32_t GetFiberId();
     void Backtrace(std::vector<std::string> &bt, int size = 64, int skip = 1);
 
     /**

@@ -10,7 +10,7 @@ namespace lyserver
         // std::cout << "引用计数:"<<Conn_Pool.use_count() << "地址:"<<&Conn_Pool<<'\n';
         user_ = new user_db_handle;
         length = 0;
-        fdmagr = FdMgr::GetInstance()->getFdmgr_ptr(); // fd存储结构
+        fdmagr = FdMgr_::GetInstance()->getFdmgr_ptr(); // fd存储结构
         ftp.reset(new FTP);
         rf.reset(new RF);
         pl.reset(new PersonaLization(std::shared_ptr<user_db_handle>(user_)));
